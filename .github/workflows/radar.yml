@@ -1,0 +1,51 @@
+name: Fast-mover radar
+
+# One job per US trading day: scans once a minute from ~09:35 to 15:05 New York and pushes
+# an alert to the phone (ntfy) when a stock matches rules.json. Alerts only, never orders.
+# Times are UTC for US winter time (EST). When New York moves to summer time (second Sunday
+# of March), use "35 13" / "5 14" and --loop-until-utc 19:05.
+on:
+  schedule:
+    - cron: "35 14 * * 1-5"
+    - cron: "5 15 * * 1-5"    # backup in case GitHub skips or delays the first start
+  workflow_dispatch:
+    inputs:
+      test:
+        description: "Send a test notification only"
+        type: boolean
+        default: false
+
+concurrency:
+  group: radar
+  cancel-in-progress: false
+
+jobs:
+  radar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Restore today's alert list
+        uses: actions/cache/restore@v4
+        with:
+          path: state
+          key: radar-state-${{ github.run_id }}
+          restore-keys: radar-state-
+
+      - name: Run radar
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+        run: |
+          if [ "${{ inputs.test }}" = "true" ]; then
+            python3 radar.py --test
+          else
+            python3 radar.py --loop-until-utc 20:05
+          fi
+
+      - name: Save today's alert list
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: state
+          key: radar-state-${{ github.run_id }}

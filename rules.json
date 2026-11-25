@@ -1,0 +1,21 @@
+{
+ "status": "DEPLOYED BY USER CHOICE 2026-11-25 without a passing delayed-entry test. Rule = best 5-minute rule (trained 2026-11-25, 799 stocks, 54 days).",
+ "bar_minutes": 5,
+ "bars": 1,
+ "rise_pct": 1.5,
+ "day_up_pct": 6.0,
+ "rel_vol": 2.0,
+ "filters": [],
+ "target_pct": 1.5,
+ "stop_pct": 5.0,
+ "max_hold_min": 120,
+ "max_alert_age_min": 2,
+ "first_signal_bar": 3,
+ "last_signal_bar": 66,
+ "min_price": 2,
+ "max_price": 300,
+ "max_alerts_per_run": 3,
+ "history_note": "الاختبار: دخول فوري ربح 71% من 120 (+0.12% للصفقة)، لكن الدخول بعد 5 دقائق خسر (−0.37%). ادخل فوراً أو تجاهل.",
+ "test_win_pct": 70.8,
+ "test_n": 120
+}
