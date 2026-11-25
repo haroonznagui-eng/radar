@@ -1,0 +1,38 @@
+name: Pending-order setups (all markets)
+
+# Every 15 minutes, every day: gold, oil, indices, currencies, crypto, ETFs. Markets that are
+# closed are skipped automatically (no fresh 15-minute candle). Alerts only, never orders.
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: setups
+  cancel-in-progress: false
+
+jobs:
+  setups:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Restore alert history
+        uses: actions/cache/restore@v4
+        with:
+          path: state
+          key: setups-state-${{ github.run_id }}
+          restore-keys: setups-state-
+
+      - name: Find setups
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+        run: python3 setups.py
+
+      - name: Save alert history
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: state
+          key: setups-state-${{ github.run_id }}
