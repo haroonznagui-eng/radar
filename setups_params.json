@@ -1,0 +1,14 @@
+{
+ "min_width_atr": 1.0,
+ "max_width_atr": 3.5,
+ "target_r": 2.0,
+ "stop": "box",
+ "filters": [
+  {"feature": "ema_slope_atr", "op": ">=", "value": 0.12361}
+ ],
+ "max_spread_r": 0.09793,
+ "trained": "2026-11-26 on 113 instruments, 60 days of 15m candles, FIT<2026-10-07 VAL<2026-10-28 TEST>=2026-10-28",
+ "test": {"alerts": 4469, "filled": 1775, "win": 42.6, "avgR": 0.033},
+ "old_rule_test": {"alerts": 4726, "filled": 2074, "win": 32.0, "avgR": -0.192},
+ "note": "اختبار 60 يوماً على صفقات لم يرها: تُنفَّذ 40% من الأوامر، وتربح 43% منها، والمتوسط +0.03R (قريب من التعادل)."
+}

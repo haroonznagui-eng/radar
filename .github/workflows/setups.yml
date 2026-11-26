@@ -1,10 +1,12 @@
 name: Pending-order setups (all markets)
 
-# Every 15 minutes, every day: gold, oil, indices, currencies, crypto, ETFs. Markets that are
-# closed are skipped automatically (no fresh 15-minute candle). Alerts only, never orders.
+# GitHub skips most runs of frequent schedules on new repositories (2 runs in 15 hours with a
+# 15-minute cron). So each job runs ~5h50m and scans every 15 minutes by itself; four starts a
+# day cover the whole day. Markets that are closed are skipped automatically. Alerts only.
 on:
   schedule:
-    - cron: "*/15 * * * *"
+    - cron: "0 0,6,12,18 * * *"
+    - cron: "30 1,7,13,19 * * *"   # backup: if a start was skipped, this one fills the gap
   workflow_dispatch:
 
 concurrency:
@@ -14,7 +16,7 @@ concurrency:
 jobs:
   setups:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 358
     steps:
       - uses: actions/checkout@v4
 
@@ -25,10 +27,15 @@ jobs:
           key: setups-state-${{ github.run_id }}
           restore-keys: setups-state-
 
-      - name: Find setups
+      - name: Find setups every 15 minutes
         env:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
-        run: python3 setups.py
+        run: |
+          # run until the next scheduled start (00/06/12/18 UTC), so jobs do not overlap
+          H=$(date -u +%H); M=$(date -u +%M)
+          LEFT=$(( ( (6 - (10#$H % 6)) * 60 - 10#$M ) - 3 ))
+          if [ $LEFT -lt 10 ]; then LEFT=10; fi
+          python3 setups.py --loop-min $LEFT
 
       - name: Save alert history
         if: always()
